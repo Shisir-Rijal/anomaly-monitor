@@ -8,7 +8,4 @@ export const Colors = {
 
   accent: '#f97316',
   accentDark: '#ea580c',
-
-  labelGreen: '#3fb950',
-  labelPurple: '#a371f7',
 };

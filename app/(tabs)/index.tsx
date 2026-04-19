@@ -1,24 +1,34 @@
-import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+
   return (
-    <ScrollView style={styles.container} bounces={false}>
-      <StatusBar barStyle="light-content" />
-
-      <View style={styles.hero} />
-
-      <View style={styles.content}>
-        <Text style={styles.label}>ANOMALY MONITOR</Text>
-        <Text style={styles.title}>Home</Text>
-        <View style={styles.divider} />
-        <Text style={styles.description}>
-          Document the unexplained. Capture anomalies around you
-          and search NASA's image archive for inspiration.
-        </Text>
-      </View>
-    </ScrollView>
+    <ImageBackground
+      source={require('../../assets/astronaut_home.jpg')}
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <LinearGradient
+        colors={['transparent', 'rgba(13,17,23,0.6)', Colors.background]}
+        locations={[0.3, 0.6, 0.85]}
+        style={styles.gradient}
+      >
+        <View style={[styles.content, { paddingBottom: insets.bottom + 32 }]}>
+          <Text style={styles.label}>ANOMALY MONITOR</Text>
+          <Text style={styles.title}>Home</Text>
+          <View style={styles.divider} />
+          <Text style={styles.description}>
+            Document the unexplained. Capture anomalies around you
+            and search NASA's image archive for inspiration.
+          </Text>
+        </View>
+      </LinearGradient>
+    </ImageBackground>
   );
 }
 
@@ -27,14 +37,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.background,
   },
-  hero: {
-    width: '100%',
-    height: 320,
-    backgroundColor: Colors.surface,
+  gradient: {
+    flex: 1,
+    justifyContent: 'flex-end',
   },
   content: {
-    padding: 24,
-    gap: 12,
+    paddingHorizontal: 24,
+    paddingTop: 48,
+    gap: 16,
   },
   label: {
     fontFamily: Typography.bodySemiBold,
@@ -44,20 +54,19 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: Typography.heading,
-    fontSize: 42,
+    fontSize: 48,
     color: Colors.textPrimary,
-    lineHeight: 46,
+    lineHeight: 52,
   },
   divider: {
     width: 40,
     height: 2,
     backgroundColor: Colors.accent,
-    marginVertical: 4,
   },
   description: {
     fontFamily: Typography.body,
     fontSize: 16,
     color: Colors.textSecondary,
-    lineHeight: 26,
+    lineHeight: 28,
   },
 });
