@@ -28,7 +28,7 @@ export default function ApodDetail({ apod, onClose }: ApodDetailProps) {
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet">
-      <View style={[styles.container, { paddingTop: insets.top }]}>
+      <View style={styles.container}>
         <View style={styles.topBar}>
           <Text style={styles.date}>{apod.date}</Text>
           <Pressable onPress={onClose} style={styles.closeButton}>
