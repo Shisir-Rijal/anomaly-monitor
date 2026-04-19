@@ -109,24 +109,20 @@ export default function NewAnomalyScreen() {
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>IMAGE</Text>
-          {imageUri ? (
-            <Image source={{ uri: imageUri }} style={styles.imagePreview} />
-          ) : (
-            <View style={styles.imagePlaceholder}>
-              <Ionicons name="image-outline" size={48} color={Colors.textSecondary} />
-              <Text style={styles.imagePlaceholderText}>No image selected</Text>
-            </View>
-          )}
-          <View style={styles.imageButtons}>
-            <Pressable style={styles.imageButton} onPress={openCamera}>
-              <Ionicons name="camera-outline" size={20} color={Colors.textPrimary} />
-              <Text style={styles.imageButtonText}>Camera</Text>
-            </Pressable>
-            <Pressable style={[styles.imageButton, styles.imageButtonAccent]} onPress={openGallery}>
-              <Ionicons name="images-outline" size={20} color={Colors.background} />
-              <Text style={[styles.imageButtonText, { color: Colors.background }]}>Gallery</Text>
-            </Pressable>
-          </View>
+          <Pressable onPress={openGallery}>
+            {imageUri ? (
+              <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+            ) : (
+              <View style={styles.imagePlaceholder}>
+                <Ionicons name="image-outline" size={48} color={Colors.textSecondary} />
+                <Text style={styles.imagePlaceholderText}>Tap to select from gallery</Text>
+              </View>
+            )}
+          </Pressable>
+          <Pressable style={styles.cameraButton} onPress={openCamera}>
+            <Ionicons name="camera-outline" size={20} color={Colors.textPrimary} />
+            <Text style={styles.cameraButtonText}>Take Photo</Text>
+          </Pressable>
         </View>
 
         <Pressable style={styles.saveButton} onPress={handleSave}>
@@ -205,12 +201,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textSecondary,
   },
-  imageButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  imageButton: {
-    flex: 1,
+  cameraButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -221,11 +212,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  imageButtonAccent: {
-    backgroundColor: Colors.accent,
-    borderColor: Colors.accent,
-  },
-  imageButtonText: {
+  cameraButtonText: {
     fontFamily: Typography.bodySemiBold,
     fontSize: 14,
     color: Colors.textPrimary,
