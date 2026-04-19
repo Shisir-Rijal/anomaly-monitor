@@ -1,16 +1,82 @@
-import { View, Text, StyleSheet, ScrollView, TextInput, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, Pressable, Image, Alert } from 'react-native';
+import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import { useAnomalies } from '../../context/AnomalyContext';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
 export default function NewAnomalyScreen() {
   const insets = useSafeAreaInsets();
+  const { addAnomaly } = useAnomalies();
+
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+
+  async function openGallery() {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  }
+
+  async function openCamera() {
+    const permission = await ImagePicker.requestCameraPermissionsAsync();
+    if (!permission.granted) {
+      Alert.alert('Permission required', 'Camera access is needed to take photos.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  }
+
+  function handleSave() {
+    if (!title.trim()) {
+      Alert.alert('Missing field', 'Please enter a name for the anomaly.');
+      return;
+    }
+    if (!description.trim()) {
+      Alert.alert('Missing field', 'Please enter a description.');
+      return;
+    }
+    if (!imageUri) {
+      Alert.alert('Missing image', 'Please select or take a photo.');
+      return;
+    }
+
+    addAnomaly({
+      id: Date.now().toString(),
+      title: title.trim(),
+      description: description.trim(),
+      imageUri,
+      createdAt: new Date().toLocaleString(),
+    });
+
+    setTitle('');
+    setDescription('');
+    setImageUri(null);
+
+    Alert.alert('Saved', 'Anomaly has been recorded.');
+  }
 
   return (
     <ScrollView
       style={styles.container}
       contentContainerStyle={{ paddingBottom: 40 }}
+      keyboardShouldPersistTaps="handled"
     >
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <Text style={styles.label}>CREATE A REPORT</Text>
@@ -18,13 +84,14 @@ export default function NewAnomalyScreen() {
       </View>
 
       <View style={styles.form}>
-
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>NAME</Text>
           <TextInput
             style={styles.input}
             placeholder="e.g. Mission Section 31"
             placeholderTextColor={Colors.textSecondary}
+            value={title}
+            onChangeText={setTitle}
           />
         </View>
 
@@ -35,31 +102,36 @@ export default function NewAnomalyScreen() {
             placeholder="Describe what you observed..."
             placeholderTextColor={Colors.textSecondary}
             multiline
+            value={description}
+            onChangeText={setDescription}
           />
         </View>
 
         <View style={styles.fieldGroup}>
           <Text style={styles.fieldLabel}>IMAGE</Text>
-          <View style={styles.imagePlaceholder}>
-            <Ionicons name="image-outline" size={48} color={Colors.textSecondary} />
-            <Text style={styles.imagePlaceholderText}>No image selected</Text>
-          </View>
+          {imageUri ? (
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+          ) : (
+            <View style={styles.imagePlaceholder}>
+              <Ionicons name="image-outline" size={48} color={Colors.textSecondary} />
+              <Text style={styles.imagePlaceholderText}>No image selected</Text>
+            </View>
+          )}
           <View style={styles.imageButtons}>
-            <Pressable style={styles.imageButton}>
+            <Pressable style={styles.imageButton} onPress={openCamera}>
               <Ionicons name="camera-outline" size={20} color={Colors.textPrimary} />
               <Text style={styles.imageButtonText}>Camera</Text>
             </Pressable>
-            <Pressable style={[styles.imageButton, styles.imageButtonAccent]}>
+            <Pressable style={[styles.imageButton, styles.imageButtonAccent]} onPress={openGallery}>
               <Ionicons name="images-outline" size={20} color={Colors.background} />
               <Text style={[styles.imageButtonText, { color: Colors.background }]}>Gallery</Text>
             </Pressable>
           </View>
         </View>
 
-        <Pressable style={styles.saveButton}>
+        <Pressable style={styles.saveButton} onPress={handleSave}>
           <Text style={styles.saveButtonText}>Save Anomaly</Text>
         </Pressable>
-
       </View>
     </ScrollView>
   );
@@ -112,6 +184,11 @@ const styles = StyleSheet.create({
   textArea: {
     height: 120,
     textAlignVertical: 'top',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
   },
   imagePlaceholder: {
     backgroundColor: Colors.surface,

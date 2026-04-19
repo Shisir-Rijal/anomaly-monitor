@@ -1,32 +1,13 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnomalyCard from '../../components/AnomalyCard';
+import { useAnomalies } from '../../context/AnomalyContext';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
-const DUMMY_DATA = [
-  {
-    id: '1',
-    title: 'Mission Section 31',
-    description: 'A very complicated mission. Strange lights observed near the old tower.',
-    date: '19.04.2026, 16:45',
-  },
-  {
-    id: '2',
-    title: 'Unknown Signal Detected',
-    description: 'Recurring radio frequency pattern, no known source identified.',
-    date: '18.04.2026, 09:12',
-  },
-  {
-    id: '3',
-    title: 'Object Over Horizon',
-    description: 'Fast-moving object observed at dusk, no aircraft in registered flight paths.',
-    date: '17.04.2026, 20:03',
-  },
-];
-
 export default function MyAnomaliesScreen() {
   const insets = useSafeAreaInsets();
+  const { anomalies } = useAnomalies();
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -36,15 +17,22 @@ export default function MyAnomaliesScreen() {
       </View>
 
       <FlatList
-        data={DUMMY_DATA}
+        data={anomalies}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyText}>No anomalies recorded yet.</Text>
+            <Text style={styles.emptySubtext}>Go to New to create your first report.</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <AnomalyCard
             title={item.title}
             description={item.description}
-            date={item.date}
+            date={item.createdAt}
+            imageUri={item.imageUri}
           />
         )}
       />
@@ -76,5 +64,20 @@ const styles = StyleSheet.create({
   },
   list: {
     padding: 24,
+  },
+  empty: {
+    alignItems: 'center',
+    paddingTop: 60,
+    gap: 8,
+  },
+  emptyText: {
+    fontFamily: Typography.bodySemiBold,
+    fontSize: 16,
+    color: Colors.textPrimary,
+  },
+  emptySubtext: {
+    fontFamily: Typography.body,
+    fontSize: 14,
+    color: Colors.textSecondary,
   },
 });
