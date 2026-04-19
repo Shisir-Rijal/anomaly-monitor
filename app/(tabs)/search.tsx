@@ -1,46 +1,60 @@
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from 'react-native';
+import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import ApodListItem from '../../components/ApodListItem';
+import { fetchApodRange } from '../../services/apodService';
+import { Apod } from '../../types/Apod';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
-const DUMMY_RESULTS = [
-  {
-    id: '1',
-    date: '2026-03-26',
-    title: 'Black Holes and Neutron Stars: 218 Mergers and Counting',
-    description: 'What is the sound of two black holes merging in deep space? Sound waves don\'t propagate in vacuum, but gravitational waves do.',
-    imageUri: 'https://apod.nasa.gov/apod/image/2603/GWTC4-Events-Poster-Landscape_1024.jpg',
-  },
-  {
-    id: '2',
-    date: '2026-03-25',
-    title: 'The Guardians of Rapa Nui beneath the Milky Way',
-    description: 'What have these silent sentinels watched pass across the sky? The Easter Island statues have stood for hundreds of years.',
-    imageUri: 'https://apod.nasa.gov/apod/image/2603/MoaiMilkyWay_1024.jpg',
-  },
-  {
-    id: '3',
-    date: '2026-03-22',
-    title: 'Light Pillars and Orion over Mohe',
-    description: 'What are those colorful pillars of light? Pictured here are not auroras but light pillars, a phenomenon typically close to the ground.',
-    imageUri: 'https://apod.nasa.gov/apod/image/2603/LightPillars_1024.jpg',
-  },
-  {
-    id: '4',
-    date: '2026-03-21',
-    title: 'Galaxies in the River: NGC 1300 and NGC 1297',
-    description: 'Spiral NGC 1300 and elliptical NGC 1297 are galaxies that lie on the banks of the constellation Eridanus.',
-    imageUri: 'https://apod.nasa.gov/apod/image/2603/NGC1300_1024.jpg',
-  },
-];
+type PickerTarget = 'from' | 'to' | null;
+
+function formatDate(date: Date): string {
+  return date.toISOString().split('T')[0];
+}
+
+function formatDisplayDate(date: Date): string {
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
 
+  const [fromDate, setFromDate] = useState(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
+  const [toDate, setToDate] = useState(new Date());
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget>(null);
+
+  const [results, setResults] = useState<Apod[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [searched, setSearched] = useState(false);
+
+  const [selectedApod, setSelectedApod] = useState<Apod | null>(null);
+
+  async function handleSearch() {
+    setLoading(true);
+    setError(null);
+    setSearched(true);
+    try {
+      const data = await fetchApodRange(formatDate(fromDate), formatDate(toDate));
+      setResults(data);
+    } catch (e) {
+      setError('Failed to load results. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function handleDateChange(_: unknown, date?: Date) {
+    if (!date) { setPickerTarget(null); return; }
+    if (pickerTarget === 'from') setFromDate(date);
+    if (pickerTarget === 'to') setToDate(date);
+    setPickerTarget(null);
+  }
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-
       <View style={styles.controls}>
         <View style={styles.header}>
           <Text style={styles.label}>EXPLORE RECORDS</Text>
@@ -50,41 +64,76 @@ export default function SearchScreen() {
         <View style={styles.dateRow}>
           <View style={styles.dateField}>
             <Text style={styles.dateLabel}>FROM</Text>
-            <View style={styles.dateInput}>
-              <Text style={styles.dateText}>20. Mar 2026</Text>
-            </View>
+            <Pressable style={styles.dateInput} onPress={() => setPickerTarget('from')}>
+              <Text style={styles.dateText}>{formatDisplayDate(fromDate)}</Text>
+            </Pressable>
           </View>
           <View style={styles.dateField}>
             <Text style={styles.dateLabel}>TO</Text>
-            <View style={styles.dateInput}>
-              <Text style={styles.dateText}>26. Mar 2026</Text>
-            </View>
+            <Pressable style={styles.dateInput} onPress={() => setPickerTarget('to')}>
+              <Text style={styles.dateText}>{formatDisplayDate(toDate)}</Text>
+            </Pressable>
           </View>
         </View>
 
-        <Pressable style={styles.searchButton}>
+        {pickerTarget && (
+          <DateTimePicker
+            value={pickerTarget === 'from' ? fromDate : toDate}
+            mode="date"
+            maximumDate={new Date()}
+            onChange={handleDateChange}
+          />
+        )}
+
+        <Pressable style={styles.searchButton} onPress={handleSearch}>
           <Text style={styles.searchButtonText}>Search</Text>
         </Pressable>
       </View>
 
-      <FlatList
-        data={DUMMY_RESULTS}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
-        renderItem={({ item }) => (
-          <ApodListItem
-            date={item.date}
-            title={item.title}
-            description={item.description}
-            imageUri={item.imageUri}
-            onPress={() => {}}
-          />
-        )}
-      />
+      {loading && (
+        <View style={styles.feedback}>
+          <ActivityIndicator color={Colors.accent} size="large" />
+        </View>
+      )}
+
+      {error && !loading && (
+        <View style={styles.feedback}>
+          <Text style={styles.errorText}>{error}</Text>
+        </View>
+      )}
+
+      {!loading && !error && searched && results.length === 0 && (
+        <View style={styles.feedback}>
+          <Text style={styles.emptyText}>No image results found for this date range.</Text>
+        </View>
+      )}
+
+      {!loading && !error && (
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.date}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={{ height: 12 }} />}
+          renderItem={({ item }) => (
+            <ApodListItem
+              date={item.date}
+              title={item.title}
+              description={item.explanation}
+              imageUri={item.url}
+              onPress={() => setSelectedApod(item)}
+            />
+          )}
+        />
+      )}
+
+      {selectedApod && (
+        <ApodDetail apod={selectedApod} onClose={() => setSelectedApod(null)} />
+      )}
     </View>
   );
 }
+
+import ApodDetail from '../../components/ApodDetail';
 
 const styles = StyleSheet.create({
   container: {
@@ -151,10 +200,27 @@ const styles = StyleSheet.create({
   searchButtonText: {
     fontFamily: Typography.bodySemiBold,
     fontSize: 15,
-    color: Colors.textPrimary,
+    color: Colors.background,
   },
   list: {
     padding: 24,
-    gap: 12,
+  },
+  feedback: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  errorText: {
+    fontFamily: Typography.body,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+  },
+  emptyText: {
+    fontFamily: Typography.body,
+    fontSize: 14,
+    color: Colors.textSecondary,
+    textAlign: 'center',
   },
 });
