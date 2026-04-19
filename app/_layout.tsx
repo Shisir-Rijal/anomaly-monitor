@@ -4,6 +4,7 @@ import { Syne_700Bold } from '@expo-google-fonts/syne';
 import { SpaceGrotesk_400Regular, SpaceGrotesk_600SemiBold } from '@expo-google-fonts/space-grotesk';
 import { View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { AnomalyProvider } from '../context/AnomalyContext';
 
 export default function RootLayout() {
 
@@ -19,7 +20,9 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }} />
+      <AnomalyProvider>
+        <Stack screenOptions={{ headerShown: false }} />
+      </AnomalyProvider>
     </SafeAreaProvider>
   );
 }
