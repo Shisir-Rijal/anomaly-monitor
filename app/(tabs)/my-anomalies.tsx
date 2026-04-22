@@ -1,13 +1,17 @@
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnomalyCard from '../../components/AnomalyCard';
+import AnomalyDetail from '../../components/AnomalyDetail';
 import { useAnomalies } from '../../context/AnomalyContext';
+import { Anomaly } from '../../types/Anomaly';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
 export default function MyAnomaliesScreen() {
   const insets = useSafeAreaInsets();
   const { anomalies } = useAnomalies();
+  const [selectedAnomaly, setSelectedAnomaly] = useState<Anomaly | null>(null);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -33,9 +37,17 @@ export default function MyAnomaliesScreen() {
             description={item.description}
             date={item.createdAt}
             imageUri={item.imageUri}
+            onPress={() => setSelectedAnomaly(item)}
           />
         )}
       />
+
+      {selectedAnomaly && (
+        <AnomalyDetail
+          anomaly={selectedAnomaly}
+          onClose={() => setSelectedAnomaly(null)}
+        />
+      )}
     </View>
   );
 }

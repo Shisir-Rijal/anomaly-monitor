@@ -1,4 +1,4 @@
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
 import { Typography } from '../constants/Typography';
@@ -8,11 +8,12 @@ interface AnomalyCardProps {
   description: string;
   date: string;
   imageUri?: string;
+  onPress?: () => void;
 }
 
-export default function AnomalyCard({ title, description, date, imageUri }: AnomalyCardProps) {
+export default function AnomalyCard({ title, description, date, imageUri, onPress }: AnomalyCardProps) {
   return (
-    <View style={styles.card}>
+    <Pressable style={({ pressed }) => [styles.card, pressed && { opacity: 0.8 }]} onPress={onPress}>
       {imageUri ? (
         <Image source={{ uri: imageUri }} style={styles.image} />
       ) : (
@@ -28,7 +29,7 @@ export default function AnomalyCard({ title, description, date, imageUri }: Anom
           <Text style={styles.date}>{date}</Text>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
