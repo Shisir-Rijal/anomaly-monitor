@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    backgroundColor: '#c0392b',
+    backgroundColor: Colors.destructive,
     borderRadius: 8,
     paddingVertical: 16,
   },

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnomalyCard from '../../components/AnomalyCard';
 import AnomalyDetail from '../../components/AnomalyDetail';
+import ScreenHeader from '../../components/ScreenHeader';
 import { useAnomalies } from '../../context/AnomalyContext';
 import { Anomaly } from '../../types/Anomaly';
 import { Colors } from '../../constants/Colors';
@@ -15,10 +16,7 @@ export default function MyAnomaliesScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <View style={styles.header}>
-        <Text style={styles.label}>ASSIGNED TO YOU</Text>
-        <Text style={styles.title}>My Anomalies</Text>
-      </View>
+      <ScreenHeader label="ASSIGNED TO YOU" title="My Anomalies" />
 
       <FlatList
         data={anomalies}
@@ -56,23 +54,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 24,
-    gap: 6,
-  },
-  label: {
-    fontFamily: Typography.bodySemiBold,
-    fontSize: 11,
-    letterSpacing: 2,
-    color: Colors.accent,
-  },
-  title: {
-    fontFamily: Typography.heading,
-    fontSize: 36,
-    color: Colors.textPrimary,
   },
   list: {
     padding: 24,

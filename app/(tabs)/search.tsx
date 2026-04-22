@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import ApodListItem from '../../components/ApodListItem';
 import ApodDetail from '../../components/ApodDetail';
+import ScreenHeader from '../../components/ScreenHeader';
+import { formatApiDate, formatDisplayDate } from '../../utils/dateUtils';
 import { fetchApodRange } from '../../services/apodService';
 import { Apod } from '../../types/Apod';
 import { Colors } from '../../constants/Colors';
@@ -11,13 +13,6 @@ import { Typography } from '../../constants/Typography';
 
 type PickerTarget = 'from' | 'to' | null;
 
-function formatDate(date: Date): string {
-  return date.toISOString().split('T')[0];
-}
-
-function formatDisplayDate(date: Date): string {
-  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-}
 
 export default function SearchScreen() {
   const insets = useSafeAreaInsets();
@@ -62,7 +57,7 @@ export default function SearchScreen() {
     setError(null);
     setSearched(true);
     try {
-      const data = await fetchApodRange(formatDate(fromDate), formatDate(toDate));
+      const data = await fetchApodRange(formatApiDate(fromDate), formatApiDate(toDate));
       setResults(data);
     } catch (e) {
       setError('Failed to load results. Please try again.');
@@ -74,10 +69,7 @@ export default function SearchScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.controls}>
-        <View style={styles.header}>
-          <Text style={styles.label}>EXPLORE RECORDS</Text>
-          <Text style={styles.title}>APOD Search</Text>
-        </View>
+        <ScreenHeader label="EXPLORE RECORDS" title="APOD Search" />
 
         <View style={styles.dateRow}>
           <View style={styles.dateField}>
@@ -192,23 +184,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  header: {
-    paddingHorizontal: 24,
-    paddingTop: 20,
-    paddingBottom: 20,
-    gap: 6,
-  },
-  label: {
-    fontFamily: Typography.bodySemiBold,
-    fontSize: 11,
-    letterSpacing: 2,
-    color: Colors.accent,
-  },
-  title: {
-    fontFamily: Typography.heading,
-    fontSize: 36,
-    color: Colors.textPrimary,
-  },
   dateRow: {
     flexDirection: 'row',
     paddingHorizontal: 24,
@@ -251,7 +226,7 @@ const styles = StyleSheet.create({
   },
   pickerBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'flex-end',
   },
   pickerSheet: {

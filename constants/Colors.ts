@@ -8,4 +8,7 @@ export const Colors = {
 
   accent: '#f97316',
   accentDark: '#ea580c',
+
+  destructive: '#c0392b',
+  overlay: 'rgba(0,0,0,0.6)',
 };

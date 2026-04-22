@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useAnomalies } from '../../context/AnomalyContext';
+import ScreenHeader from '../../components/ScreenHeader';
 import { Colors } from '../../constants/Colors';
 import { Typography } from '../../constants/Typography';
 
@@ -78,9 +79,8 @@ export default function NewAnomalyScreen() {
       contentContainerStyle={{ paddingBottom: 40 }}
       keyboardShouldPersistTaps="handled"
     >
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Text style={styles.label}>CREATE A REPORT</Text>
-        <Text style={styles.title}>New Anomaly</Text>
+      <View style={{ paddingTop: insets.top }}>
+        <ScreenHeader label="CREATE A REPORT" title="New Anomaly" />
       </View>
 
       <View style={styles.form}>
@@ -137,22 +137,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
-  },
-  header: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    gap: 6,
-  },
-  label: {
-    fontFamily: Typography.bodySemiBold,
-    fontSize: 11,
-    letterSpacing: 2,
-    color: Colors.accent,
-  },
-  title: {
-    fontFamily: Typography.heading,
-    fontSize: 36,
-    color: Colors.textPrimary,
   },
   form: {
     padding: 24,
