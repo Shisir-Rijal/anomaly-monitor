@@ -195,6 +195,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
+    marginTop: 12,
   },
   cameraButtonText: {
     fontFamily: Typography.bodySemiBold,
