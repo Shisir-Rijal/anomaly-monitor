@@ -4,6 +4,7 @@ import { Anomaly } from '../types/Anomaly';
 interface AnomalyContextType {
   anomalies: Anomaly[];
   addAnomaly: (anomaly: Anomaly) => void;
+  deleteAnomaly: (id: string) => void;
 }
 
 const AnomalyContext = createContext<AnomalyContextType | undefined>(undefined);
@@ -15,8 +16,12 @@ export function AnomalyProvider({ children }: { children: ReactNode }) {
     setAnomalies((prev) => [anomaly, ...prev]);
   }
 
+  function deleteAnomaly(id: string) {
+    setAnomalies((prev) => prev.filter((a) => a.id !== id));
+  }
+
   return (
-    <AnomalyContext.Provider value={{ anomalies, addAnomaly }}>
+    <AnomalyContext.Provider value={{ anomalies, addAnomaly, deleteAnomaly }}>
       {children}
     </AnomalyContext.Provider>
   );

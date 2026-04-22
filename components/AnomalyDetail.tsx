@@ -1,6 +1,7 @@
 import { View, Text, Image, StyleSheet, ScrollView, Pressable, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useAnomalies } from '../context/AnomalyContext';
 import { Anomaly } from '../types/Anomaly';
 import { Colors } from '../constants/Colors';
 import { Typography } from '../constants/Typography';
@@ -12,6 +13,12 @@ interface AnomalyDetailProps {
 
 export default function AnomalyDetail({ anomaly, onClose }: AnomalyDetailProps) {
   const insets = useSafeAreaInsets();
+  const { deleteAnomaly } = useAnomalies();
+
+  function handleDelete() {
+    deleteAnomaly(anomaly.id);
+    onClose();
+  }
 
   return (
     <Modal animationType="slide" presentationStyle="pageSheet">
@@ -38,6 +45,10 @@ export default function AnomalyDetail({ anomaly, onClose }: AnomalyDetailProps) 
         </ScrollView>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + 16 }]}>
+          <Pressable style={styles.deleteButton} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={16} color={Colors.background} />
+            <Text style={styles.deleteButtonText}>Delete Anomaly</Text>
+          </Pressable>
           <Pressable style={styles.closeButtonFull} onPress={onClose}>
             <Text style={styles.closeButtonText}>Close</Text>
           </Pressable>
@@ -106,8 +117,23 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: 24,
     paddingTop: 16,
+    gap: 12,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
+  },
+  deleteButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: '#c0392b',
+    borderRadius: 8,
+    paddingVertical: 16,
+  },
+  deleteButtonText: {
+    fontFamily: Typography.bodySemiBold,
+    fontSize: 16,
+    color: Colors.background,
   },
   closeButtonFull: {
     backgroundColor: Colors.surface,
